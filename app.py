@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pandas as pd
+import plotly.express as px
 import streamlit as st
 
 from breeding import predict_offspring
@@ -34,6 +35,29 @@ def _prob_table(probs: dict[str, float]) -> pd.DataFrame:
     return df
 
 
+def _pie_chart(probs: dict[str, float], title: str = "") -> None:
+    df = pd.DataFrame({"Coat Color": list(probs.keys()), "Probability": list(probs.values())})
+    df = df.sort_values("Probability", ascending=False)
+    fig = px.pie(
+        df,
+        names="Coat Color",
+        values="Probability",
+        title=title,
+        hole=0.35,
+    )
+    fig.update_traces(
+        textposition="inside",
+        textinfo="percent+label",
+        hovertemplate="%{label}: %{percent}<extra></extra>",
+    )
+    fig.update_layout(
+        showlegend=False,
+        margin=dict(t=48, b=8, l=8, r=8),
+        title_font_size=14,
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+
 def _render_offspring_col(
     col: st.delta_generator.DeltaGenerator,
     label: str,
@@ -44,9 +68,8 @@ def _render_offspring_col(
         if not probs:
             st.info("No offspring of this sex possible.")
             return
-        df = _prob_table(probs)
-        st.bar_chart(df)
-        df_display = df.copy()
+        _pie_chart(probs)
+        df_display = _prob_table(probs).copy()
         df_display["Probability"] = df_display["Probability"].map("{:.1%}".format)
         st.dataframe(df_display, use_container_width=True)
 
@@ -173,14 +196,14 @@ with tab_reverse:
             mcol, dcol = st.columns(2)
             with mcol:
                 st.markdown("**Most likely sire coat color**")
+                _pie_chart(sire_marg)
                 df_s = _prob_table(sire_marg)
-                st.bar_chart(df_s)
                 df_s["Probability"] = df_s["Probability"].map("{:.1%}".format)
                 st.dataframe(df_s, use_container_width=True)
             with dcol:
                 st.markdown("**Most likely dam coat color**")
+                _pie_chart(dam_marg)
                 df_d = _prob_table(dam_marg)
-                st.bar_chart(df_d)
                 df_d["Probability"] = df_d["Probability"].map("{:.1%}".format)
                 st.dataframe(df_d, use_container_width=True)
 
@@ -195,8 +218,8 @@ with tab_reverse:
         else:
             unknown_label = "Dam" if known_sire_ph else "Sire"
             st.subheader(f"Most likely {unknown_label} coat color")
+            _pie_chart(result)
             df = _prob_table(result)
-            st.bar_chart(df)
             df["Probability"] = df["Probability"].map("{:.1%}".format)
             st.dataframe(df, use_container_width=True)
 
