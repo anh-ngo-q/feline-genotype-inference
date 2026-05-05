@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/ngoaq/.claude/projects/**)",
+      "Bash(awk '{print $2}')",
+      "Bash(xargs '-I{}' python3 -c ' *)",
+      "Bash(python3)",
+      "Bash(python3 -c ' *)",
+      "Bash(/c/Users/ngoaq/AppData/Local/Microsoft/WindowsApps/python3 --version)",
+      "Bash(where py *)",
+      "Read(//c/Users/ngoaq/AppData/Local/Programs/Python//**)",
+      "Bash(ls /c/Python*)",
+      "Read(//c/Users/ngoaq/miniconda3/**)",
+      "Read(//c/Users/ngoaq/anaconda3/**)",
+      "Bash(/c/Users/ngoaq/AppData/Local/Programs/Python/Python312/python.exe -c ' *)"
+    ]
+  }
+}
