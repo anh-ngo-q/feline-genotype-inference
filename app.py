@@ -35,7 +35,7 @@ def _prob_table(probs: dict[str, float]) -> pd.DataFrame:
     return df
 
 
-def _pie_chart(probs: dict[str, float], title: str = "") -> None:
+def _pie_chart(probs: dict[str, float], key: str, title: str = "") -> None:
     df = pd.DataFrame({"Coat Color": list(probs.keys()), "Probability": list(probs.values())})
     df = df.sort_values("Probability", ascending=False)
     fig = px.pie(
@@ -55,7 +55,7 @@ def _pie_chart(probs: dict[str, float], title: str = "") -> None:
         margin=dict(t=48, b=8, l=8, r=8),
         title_font_size=14,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, key=key)
 
 
 def _render_offspring_col(
@@ -68,7 +68,7 @@ def _render_offspring_col(
         if not probs:
             st.info("No offspring of this sex possible.")
             return
-        _pie_chart(probs)
+        _pie_chart(probs, key=f"pie_offspring_{label}")
         df_display = _prob_table(probs).copy()
         df_display["Probability"] = df_display["Probability"].map("{:.1%}".format)
         st.dataframe(df_display, use_container_width=True)
@@ -196,13 +196,13 @@ with tab_reverse:
             mcol, dcol = st.columns(2)
             with mcol:
                 st.markdown("**Most likely sire coat color**")
-                _pie_chart(sire_marg)
+                _pie_chart(sire_marg, key="pie_rev_sire")
                 df_s = _prob_table(sire_marg)
                 df_s["Probability"] = df_s["Probability"].map("{:.1%}".format)
                 st.dataframe(df_s, use_container_width=True)
             with dcol:
                 st.markdown("**Most likely dam coat color**")
-                _pie_chart(dam_marg)
+                _pie_chart(dam_marg, key="pie_rev_dam")
                 df_d = _prob_table(dam_marg)
                 df_d["Probability"] = df_d["Probability"].map("{:.1%}".format)
                 st.dataframe(df_d, use_container_width=True)
@@ -218,7 +218,7 @@ with tab_reverse:
         else:
             unknown_label = "Dam" if known_sire_ph else "Sire"
             st.subheader(f"Most likely {unknown_label} coat color")
-            _pie_chart(result)
+            _pie_chart(result, key="pie_rev_unknown")
             df = _prob_table(result)
             df["Probability"] = df["Probability"].map("{:.1%}".format)
             st.dataframe(df, use_container_width=True)
